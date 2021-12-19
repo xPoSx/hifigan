@@ -9,14 +9,14 @@ class WanDBWriter:
     def add_metrics(self, metrics):
         wandb.log(metrics)
 
-    def add_audio(self, pred, true, transcript):
+    def add_audio(self, pred, true, transcript, it):
         wandb.log({
-            'pred audio': wandb.Audio(pred.squeeze().numpy(), sample_rate=22050, caption=transcript),
-            'true audio': wandb.Audio(true.squeeze().numpy(), sample_rate=22050, caption=transcript)
+            'pred audio ' + str(it): wandb.Audio(pred.squeeze().numpy(), sample_rate=22050, caption=transcript),
+            'true audio ' + str(it): wandb.Audio(true.squeeze().numpy(), sample_rate=22050, caption=transcript)
         })
 
-    def add_spectrogram(self, pred, true, transcript):
+    def add_spectrogram(self, pred, true, transcript, it):
         wandb.log({
-            'pred spectrogram': wandb.Image(pred.squeeze().numpy(), caption=transcript),
-            'true spectrogram': wandb.Image(true.squeeze().numpy(), caption=transcript)
+            'pred spectrogram ' + str(it): wandb.Image(pred.squeeze().numpy(), caption=transcript),
+            'true spectrogram ' + str(it): wandb.Image(true.squeeze().numpy(), caption=transcript)
         })

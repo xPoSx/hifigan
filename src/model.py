@@ -2,11 +2,11 @@ import torch
 from torch import nn
 from torch.nn.utils import weight_norm, spectral_norm
 import torch.nn.functional as F
-import config
+import src.config as config
 
 
 class ResBlock(nn.Module):
-    def __init__(self, hidden_size, kernel_size, dilations=config.gen_dilations):
+    def __init__(self, hidden_size, kernel_size, dilations):
         super().__init__()
         self.layers = nn.ModuleList()
         for i in range(len(dilations)):
@@ -27,7 +27,9 @@ class ResBlock(nn.Module):
 class MRF(nn.Module):
     def __init__(self, hidden_size):
         super().__init__()
-        self.layers = nn.ModuleList([ResBlock(hidden_size, 3), ResBlock(hidden_size, 7), ResBlock(hidden_size, 11)])
+        self.layers = nn.ModuleList([ResBlock(hidden_size, 3, config.gen_dilations[0]),
+                                     ResBlock(hidden_size, 5, config.gen_dilations[1]),
+                                     ResBlock(hidden_size, 7, config.gen_dilations[2])])
 
     def forward(self, input):
         out = self.layers[0](input)
@@ -40,13 +42,13 @@ class MRF(nn.Module):
 class Generator(nn.Module):
     def __init__(self, in_ch, kernel_sizes=config.gen_kernel_sizes):
         super().__init__()
-        self.input_conv = nn.Conv1d(in_ch, 512, 7, padding=3)
+        self.input_conv = nn.Conv1d(in_ch, 256, 7, padding=3)
 
         self.layers = nn.Sequential(*[nn.Sequential(
             nn.LeakyReLU(0.1),
-            nn.ConvTranspose1d(512 // (2 ** i), 512 // (2 ** (i + 1)), kernel_sizes[i], kernel_sizes[i] // 2,
+            nn.ConvTranspose1d(256 // (2 ** i), 256 // (2 ** (i + 1)), kernel_sizes[i], kernel_sizes[i] // 2,
                                kernel_sizes[i] // 4),
-            MRF(512 // (2 ** (i + 1)))) for i in range(4)])
+            MRF(256 // (2 ** (i + 1)))) for i in range(3)])
 
         self.out_conv = nn.Sequential(
             nn.LeakyReLU(0.1),

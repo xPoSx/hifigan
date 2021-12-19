@@ -1,5 +1,5 @@
-gen_dilations = [[1, 1], [3, 1], [5, 1]]
-gen_kernel_sizes = [16, 16, 4, 4]
+gen_dilations = [[[1], [2]], [[2], [6]], [[3], [12]]]
+gen_kernel_sizes = [16, 16, 8]
 
 subpd_kernel_size = (5, 1)
 subpd_stride = (3, 1)
