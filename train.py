@@ -67,6 +67,11 @@ for e in range(n_epochs):
         gen_wav = gen(mels)
         gen_mel = featurizer(gen_wav).squeeze(1)
 
+        for p in mpd.parameters():
+            p.requires_grad = True
+        for p in msd.parameters():
+            p.requires_grad = True
+
         disc_opt.zero_grad()
         mpd_true_outs, _, mpd_pred_outs, _ = mpd(waveform, gen_wav.detach())
         mpd_loss = disc_loss(mpd_true_outs, mpd_pred_outs)
@@ -77,6 +82,11 @@ for e in range(n_epochs):
         discriminator_loss = mpd_loss + msd_loss
         discriminator_loss.backward()
         disc_opt.step()
+
+        for p in mpd.parameters():
+            p.requires_grad = False
+        for p in msd.parameters():
+            p.requires_grad = False
 
         gen_opt.zero_grad()
         mels_loss = mel_loss(mels, gen_mel) * 45
